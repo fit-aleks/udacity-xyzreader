@@ -124,6 +124,7 @@ public class ItemsProvider extends ContentProvider {
      * a {@link SQLiteDatabase} transaction. All changes will be rolled back if
      * any single one fails.
      */
+	@Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
