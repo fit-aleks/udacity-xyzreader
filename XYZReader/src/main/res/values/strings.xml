@@ -9,4 +9,6 @@
 
     <string name="up">Up</string>
 
+    <!-- transition names -->
+    <string name="article_image_transition_name" translatable="false">TN_article_image</string>
 </resources>

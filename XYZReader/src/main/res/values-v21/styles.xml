@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Bacon.Detail">
-        <item name="android:statusBarColor">@android:color/transparent</item>
+    <style name="Theme.Bacon" parent="@style/BaseTheme.Bacon">
+        <item name="android:windowContentTransitions">true</item>
     </style>
+
+    <style name="Theme.Bacon.Detail" parent="@style/BaseTheme.Bacon">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
 </resources>

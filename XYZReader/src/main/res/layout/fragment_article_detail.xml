@@ -19,11 +19,12 @@
                 android:layout_height="wrap_content"
                 android:background="@color/photo_placeholder">
                 <!--suppress AndroidLintContentDescription -->
-                <ImageView
+                <com.example.xyzreader.ui.widget.DynamicHeightNetworkImageView
                     android:id="@+id/photo"
-                    android:layout_width="100dp"
+                    android:layout_width="match_parent"
                     android:layout_height="100dp"
-                     />
+                    android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"/>
 
                 <View
                     android:layout_width="match_parent"
@@ -32,7 +33,7 @@
 
             </FrameLayout>
 
-            <com.example.xyzreader.ui.widget.MaxWidthLinearLayout
+            <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,7 +89,7 @@
                     android:textSize="@dimen/detail_body_text_size"
                     android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
 
-            </com.example.xyzreader.ui.widget.MaxWidthLinearLayout>
+            </LinearLayout>
         </FrameLayout>
     </com.example.xyzreader.ui.ObservableScrollView>
 
