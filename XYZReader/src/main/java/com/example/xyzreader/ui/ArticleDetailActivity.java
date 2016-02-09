@@ -47,12 +47,10 @@ public class ArticleDetailActivity extends AppCompatActivity
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
         setContentView(R.layout.activity_article_detail);
-        /*
-        final FragmentManager manager = getFragmentManager();
-        manager.beginTransaction()
-                .replace(R.id.detail_content, ArticleDetailFragment.newInstance(0))
-                .commit();
-                */
+        if (getIntent() != null && getIntent().getData() != null) {
+            mStartId = ItemsContract.Items.getItemId(getIntent().getData());
+            mSelectedItemId = mStartId;
+        }
 
         getLoaderManager().initLoader(0, null, this);
 
@@ -111,6 +109,7 @@ public class ArticleDetailActivity extends AppCompatActivity
                 mSelectedItemId = mStartId;
             }
         }
+
     }
 
     @Override
@@ -145,6 +144,7 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPagerAdapter.notifyDataSetChanged();
     }
 
+
     public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
         if (itemId == mSelectedItemId) {
             mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
@@ -175,7 +175,10 @@ public class ArticleDetailActivity extends AppCompatActivity
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            final Bundle bundle = new Bundle();
+            bundle.putBoolean(ArticleDetailFragment.DETAIL_TRANSITION_ANIMATION, true);
+            long articlId = mCursor.getLong(ArticleLoader.Query._ID);
+            return ArticleDetailFragment.newInstance(articlId, articlId == mStartId);
         }
 
         @Override
@@ -183,4 +186,5 @@ public class ArticleDetailActivity extends AppCompatActivity
             return (mCursor != null) ? mCursor.getCount() : 0;
         }
     }
+
 }
