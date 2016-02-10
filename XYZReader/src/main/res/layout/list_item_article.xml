@@ -22,8 +22,7 @@
             android:layout_height="100dp"
             android:scaleType="centerCrop"
             tools:background="@color/photo_placeholder"
-            android:adjustViewBounds="true"
-            android:transitionName="@string/article_image_transition_name"/>
+            android:adjustViewBounds="true"/>
 
         <TextView
             android:id="@+id/article_title"

@@ -29,8 +29,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:scaleType="centerCrop"
-                    android:adjustViewBounds="true"
-                    android:transitionName="@string/article_image_transition_name"/>
+                    android:adjustViewBounds="true"/>
 
                 <View
                     android:layout_width="match_parent"
