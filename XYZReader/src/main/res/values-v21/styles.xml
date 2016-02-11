@@ -7,6 +7,7 @@
 
     <style name="Theme.Bacon.Detail" parent="@style/BaseTheme.Bacon">
         <item name="android:statusBarColor">@android:color/transparent</item>
+
         <item name="android:windowSharedElementEnterTransition">@transition/shared_photo_transition</item>
         <item name="android:windowContentTransitions">true</item>
     </style>

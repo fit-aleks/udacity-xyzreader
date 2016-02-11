@@ -81,8 +81,10 @@ public class ArticleListActivity extends AppCompatActivity implements
                         ItemsContract.Items.buildItemUri(adapter.getItemId(viewHolder.getAdapterPosition())));
                 ActivityOptionsCompat activityOptions = null;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                     activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(ArticleListActivity.this,
-                                    viewHolder.thumbnailView, viewHolder.thumbnailView.getTransitionName());
+                    //TODO: uncomment after fixing animation
+                    // http://stackoverflow.com/questions/26664922/crash-material-design-android-5-0
+//                     activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(ArticleListActivity.this,
+//                                    viewHolder.thumbnailView, viewHolder.thumbnailView.getTransitionName());
                 }
                 startActivity(intent, activityOptions != null ? activityOptions.toBundle() : null);
             }
