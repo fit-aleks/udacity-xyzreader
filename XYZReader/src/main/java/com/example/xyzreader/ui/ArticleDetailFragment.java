@@ -7,7 +7,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,9 +26,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 
@@ -61,9 +57,7 @@ public class ArticleDetailFragment extends Fragment implements
     @Bind(R.id.toolbar) Toolbar toolbar;
     @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
 
-    private int mScrollY;
     private boolean mIsCard = false;
-    private boolean isTransitioning;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -92,7 +86,6 @@ public class ArticleDetailFragment extends Fragment implements
         }
 
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
-        isTransitioning = savedInstanceState == null && transitionAnimation;
     }
 
     @Override
@@ -153,27 +146,11 @@ public class ArticleDetailFragment extends Fragment implements
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
             Glide.with(this)
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            startPostponedEnterTransition();
-                            return true;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            startPostponedEnterTransition();
-                            return false;
-                        }
-                    })
                     .into(mPhotoView);
-//            mPhotoView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-        }/* else {
-            mRootView.setVisibility(View.GONE);
-            titleView.setText("N/A");
-            bylineView.setText("N/A");
-            bodyView.setText("N/A");
-        }*/
+            if (transitionAnimation) {
+                startPostponedEnterTransition();
+            }
+        }
     }
 
     private void startPostponedEnterTransition() {
@@ -182,7 +159,7 @@ public class ArticleDetailFragment extends Fragment implements
                 @Override
                 public boolean onPreDraw() {
                     mPhotoView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    ((AppCompatActivity)getActivity()).supportStartPostponedEnterTransition();
+                    ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
                     return true;
                 }
             });
@@ -211,9 +188,6 @@ public class ArticleDetailFragment extends Fragment implements
         }
 
         bindViews();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Timber.d("transitionName in Fragment = " + mPhotoView.getTransitionName() + " isANmiated=" + isTransitioning);
-        }
 
         AppCompatActivity activity = (AppCompatActivity)getActivity();
         if (toolbar != null) {

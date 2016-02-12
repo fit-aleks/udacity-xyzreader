@@ -2,13 +2,12 @@ package com.example.xyzreader.ui;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Build;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -65,9 +64,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                 .load(cursor.getString(ArticleLoader.Query.THUMB_URL))
                 .into(holder.thumbnailView);
         holder.thumbnailView.setAspectRatio(cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            holder.thumbnailView.setTransitionName(context.getString(R.string.article_image_transition_name) + getItemId(position));
-        }
+        ViewCompat.setTransitionName(holder.thumbnailView, context.getString(R.string.article_image_transition_name) + getItemId(position));
     }
 
     @Override
@@ -94,7 +91,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         }
     }
 
-    public static interface ArticlesAdapterClickHandler {
+    public interface ArticlesAdapterClickHandler {
         void onClick(ViewHolder viewHolder);
     }
 }

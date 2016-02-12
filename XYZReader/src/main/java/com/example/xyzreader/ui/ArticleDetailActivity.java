@@ -19,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.example.xyzreader.R;
@@ -35,6 +34,8 @@ import java.util.Map;
 public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String STATE_CURRENT_ARTICLE = "current_article";
+
     private Cursor mCursor;
     private long mStartId;
     private long mSelectedItemId;
@@ -45,16 +46,14 @@ public class ArticleDetailActivity extends AppCompatActivity
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
     ArticleDetailFragment mCurrentDetailsFragment;
-//    private View mUpButtonContainer;
-//    private View mUpButton;
     private boolean isReturning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_detail);
-        //TODO: uncomment after fixing animation
-//        ActivityCompat.postponeEnterTransition(this);
+        ActivityCompat.postponeEnterTransition(this);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setEnterSharedElementCallback(new SharedElementCallback() {
                 @Override
@@ -72,12 +71,13 @@ public class ArticleDetailActivity extends AppCompatActivity
                             // remove the old shared element and replace it with the new shared element
                             // that should be transitioned instead.
                             names.clear();
-                            names.add(sharedElement.getTransitionName());
+                            names.add(ViewCompat.getTransitionName(sharedElement));
                             sharedElements.clear();
-                            sharedElements.put(sharedElement.getTransitionName(), sharedElement);
+                            sharedElements.put(ViewCompat.getTransitionName(sharedElement), sharedElement);
                         }
                     }
                 }
+
             });
         }
 
@@ -137,6 +137,12 @@ public class ArticleDetailActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_CURRENT_ARTICLE, mCurrentPosition);
     }
 
     @Override

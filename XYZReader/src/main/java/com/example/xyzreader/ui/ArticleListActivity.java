@@ -8,7 +8,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -24,8 +23,6 @@ import com.example.xyzreader.data.UpdaterService;
 import java.util.List;
 import java.util.Map;
 
-import timber.log.Timber;
-
 /**
  * An activity representing a list of Articles. This activity has different presentations for
  * handset and tablet-size devices. On handsets, the activity presents a list of items, which when
@@ -38,25 +35,36 @@ public class ArticleListActivity extends AppCompatActivity implements
     private RecyclerView mRecyclerView;
     private ArticleListAdapter adapter;
 
+    private Bundle reenterStater;
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setSharedElementCallback() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         setExitSharedElementCallback(new SharedElementCallback() {
             @Override
             public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                //TODO: add support for returning back - correct image should fall back
-                // It is only exit situation
-                View navigationBar = findViewById(android.R.id.navigationBarBackground);
-                View statusBar = findViewById(android.R.id.statusBarBackground);
-                if (navigationBar != null) {
-                    names.add(navigationBar.getTransitionName());
-                    sharedElements.put(navigationBar.getTransitionName(), navigationBar);
-                }
-                if (statusBar != null) {
-                    names.add(statusBar.getTransitionName());
-                    sharedElements.put(statusBar.getTransitionName(), statusBar);
+                if (reenterStater != null) {
+                    //TODO: add support for returning back - correct image should fall back
+
+                    reenterStater = null;
+                } else {
+                    // it is exit situation
+                    View navigationBar = findViewById(android.R.id.navigationBarBackground);
+                    View statusBar = findViewById(android.R.id.statusBarBackground);
+                    if (navigationBar != null) {
+                        names.add(navigationBar.getTransitionName());
+                        sharedElements.put(navigationBar.getTransitionName(), navigationBar);
+                    }
+                    if (statusBar != null) {
+                        names.add(statusBar.getTransitionName());
+                        sharedElements.put(statusBar.getTransitionName(), statusBar);
+                    }
                 }
             }
         });
+
     }
 
     @Override
@@ -81,10 +89,8 @@ public class ArticleListActivity extends AppCompatActivity implements
                         ItemsContract.Items.buildItemUri(adapter.getItemId(viewHolder.getAdapterPosition())));
                 ActivityOptionsCompat activityOptions = null;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    //TODO: uncomment after fixing animation
-                    // http://stackoverflow.com/questions/26664922/crash-material-design-android-5-0
-//                     activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(ArticleListActivity.this,
-//                                    viewHolder.thumbnailView, viewHolder.thumbnailView.getTransitionName());
+                    activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(ArticleListActivity.this,
+                            viewHolder.thumbnailView, viewHolder.thumbnailView.getTransitionName());
                 }
                 startActivity(intent, activityOptions != null ? activityOptions.toBundle() : null);
             }
@@ -109,7 +115,6 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-//        getLoaderManager().restartLoader(0, null, this);
     }
 
     @Override
