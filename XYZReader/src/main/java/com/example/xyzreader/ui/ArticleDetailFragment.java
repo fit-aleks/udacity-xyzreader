@@ -51,9 +51,10 @@ public class ArticleDetailFragment extends Fragment implements
 
     private View mRootView;
     @Bind(R.id.photo) ImageView mPhotoView;
-    @Bind(R.id.article_title) TextView titleView;
-    @Bind(R.id.article_byline) TextView bylineView;
+//    @Bind(R.id.article_title) TextView titleView;
+//    @Bind(R.id.article_byline) TextView bylineView;
     @Bind(R.id.article_body) TextView bodyView;
+    @Bind(R.id.toolbar_subtitle) TextView subtitle;
     @Bind(R.id.toolbar) Toolbar toolbar;
     @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
 
@@ -109,7 +110,7 @@ public class ArticleDetailFragment extends Fragment implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPhotoView.setTransitionName(getString(R.string.article_image_transition_name) + mItemId);
         }
-        bylineView.setMovementMethod(new LinkMovementMethod());
+//        bylineView.setMovementMethod(new LinkMovementMethod());
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         return mRootView;
@@ -134,7 +135,12 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+//            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            subtitle.setText(DateUtils.getRelativeTimeSpanString(mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                    System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                    DateUtils.FORMAT_ABBREV_ALL).toString()
+                    + "by " + mCursor.getString(ArticleLoader.Query.AUTHOR));
+            /*
             bylineView.setText(Html.fromHtml(
                     DateUtils.getRelativeTimeSpanString(
                             mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
@@ -143,6 +149,7 @@ public class ArticleDetailFragment extends Fragment implements
                             + " by <font color='#ffffff'>"
                             + mCursor.getString(ArticleLoader.Query.AUTHOR)
                             + "</font>"));
+                            */
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
             Glide.with(this)
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
