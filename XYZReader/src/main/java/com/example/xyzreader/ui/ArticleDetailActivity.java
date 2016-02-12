@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.app.SharedElementCallback;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
@@ -38,9 +39,8 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     private Cursor mCursor;
     private long mStartId;
-    private long mSelectedItemId;
+    private int startPosition;
 
-    private int mStartingPosition;
     private int mCurrentPosition;
 
     private ViewPager mPager;
@@ -66,7 +66,7 @@ public class ArticleDetailActivity extends AppCompatActivity
                             // removing the shared element from the shared elements map.
                             names.clear();
                             sharedElements.clear();
-                        } else if (mStartId != mSelectedItemId) {
+                        } else if (mCurrentPosition != startPosition) {
                             // If the user has swiped to a different ViewPager page, then we need to
                             // remove the old shared element and replace it with the new shared element
                             // that should be transitioned instead.
@@ -85,11 +85,8 @@ public class ArticleDetailActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
                 mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-                mSelectedItemId = mStartId;
             }
         }
-
-
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -162,6 +159,7 @@ public class ArticleDetailActivity extends AppCompatActivity
             while (!mCursor.isAfterLast()) {
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     final int position = mCursor.getPosition();
+                    startPosition = position;
                     mPager.setCurrentItem(position, false);
                     break;
                 }
@@ -180,6 +178,10 @@ public class ArticleDetailActivity extends AppCompatActivity
     @Override
     public void finishAfterTransition() {
         isReturning = true;
+        final Intent data = new Intent();
+        data.putExtra(ArticleListActivity.EXTRA_CURRENT_POSITION, mCurrentPosition);
+        data.putExtra(ArticleListActivity.EXTRA_STARTING_POSITION, startPosition);
+        setResult(RESULT_OK, data);
         super.finishAfterTransition();
     }
 
