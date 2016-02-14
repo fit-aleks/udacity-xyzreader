@@ -5,6 +5,7 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -14,10 +15,12 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +29,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawableResource;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.utils.ColorUtils;
+import com.example.xyzreader.utils.GlideUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -51,8 +61,6 @@ public class ArticleDetailFragment extends Fragment implements
 
     private View mRootView;
     @Bind(R.id.photo) ImageView mPhotoView;
-//    @Bind(R.id.article_title) TextView titleView;
-//    @Bind(R.id.article_byline) TextView bylineView;
     @Bind(R.id.article_body) TextView bodyView;
     @Bind(R.id.toolbar_subtitle) TextView subtitle;
     @Bind(R.id.toolbar) Toolbar toolbar;
@@ -110,7 +118,7 @@ public class ArticleDetailFragment extends Fragment implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPhotoView.setTransitionName(getString(R.string.article_image_transition_name) + mItemId);
         }
-//        bylineView.setMovementMethod(new LinkMovementMethod());
+        bodyView.setMovementMethod(new LinkMovementMethod());
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         return mRootView;
@@ -135,24 +143,16 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-//            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             subtitle.setText(DateUtils.getRelativeTimeSpanString(mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
                     System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                     DateUtils.FORMAT_ABBREV_ALL).toString()
                     + "by " + mCursor.getString(ArticleLoader.Query.AUTHOR));
-            /*
-            bylineView.setText(Html.fromHtml(
-                    DateUtils.getRelativeTimeSpanString(
-                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
-                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                            DateUtils.FORMAT_ABBREV_ALL).toString()
-                            + " by <font color='#ffffff'>"
-                            + mCursor.getString(ArticleLoader.Query.AUTHOR)
-                            + "</font>"));
-                            */
+
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
             Glide.with(this)
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+                    .priority(Priority.IMMEDIATE)
+                    .listener(photoLoadListener)
                     .into(mPhotoView);
             if (transitionAnimation) {
                 startPostponedEnterTransition();
@@ -236,4 +236,41 @@ public class ArticleDetailFragment extends Fragment implements
         container.getHitRect(containerBounds);
         return view.getLocalVisibleRect(containerBounds);
     }
+
+    private RequestListener photoLoadListener = new RequestListener<String, GlideDrawable>() {
+
+        @Override
+        public boolean onResourceReady(GlideDrawable resource, String model,
+                                       Target<GlideDrawable> target,
+                                       boolean isFromMemoryCache, boolean isFirstResource) {
+            final Bitmap bitmap = GlideUtils.getBitmap(resource);
+            if (bitmap == null) {
+                return false;
+            }
+            final int twentyFourDip = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                    24, ArticleDetailFragment.this.getResources().getDisplayMetrics());
+            Palette.from(bitmap)
+                    .maximumColorCount(3)
+                    .clearFilters()/* by default palette ignore certain hues
+                        (e.g. pure black/white) but we don't want this. */
+                    .generate(new Palette.PaletteAsyncListener() {
+                        @Override
+                        public void onGenerated(Palette palette) {
+                            Palette.Swatch mostPopular = ColorUtils.getMostPopulousSwatch(palette);
+                            if (mostPopular == null) {
+                                return;
+                            }
+                            collapsingToolbar.setContentScrimColor(mostPopular.getRgb());
+                        }
+                    });
+            return false;
+        }
+
+        @Override
+        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+            return false;
+        }
+
+
+    };
 }
