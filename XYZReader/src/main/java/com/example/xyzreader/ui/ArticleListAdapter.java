@@ -53,6 +53,14 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     public void onBindViewHolder(ViewHolder holder, int position) {
         cursor.moveToPosition(position);
         holder.titleView.setText(cursor.getString(ArticleLoader.Query.TITLE));
+        holder.subtitleView.setText(context.getString(R.string.details_subtitle,
+                DateUtils.getRelativeTimeSpanString(
+                        cursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                        System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                        DateUtils.FORMAT_ABBREV_ALL),
+                cursor.getString(ArticleLoader.Query.AUTHOR)));
+
+        /*
         holder.subtitleView.setText(
                 DateUtils.getRelativeTimeSpanString(
                         cursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
@@ -60,7 +68,9 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                         DateUtils.FORMAT_ABBREV_ALL).toString()
                         + " by "
                         + cursor.getString(ArticleLoader.Query.AUTHOR));
-        Glide.with(this.context)
+                        */
+
+        Glide.with(holder.thumbnailView.getContext())
                 .load(cursor.getString(ArticleLoader.Query.THUMB_URL))
                 .into(holder.thumbnailView);
         holder.thumbnailView.setAspectRatio(cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
