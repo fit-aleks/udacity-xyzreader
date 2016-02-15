@@ -51,6 +51,7 @@ import timber.log.Timber;
 public class ArticleDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     public static final String DETAIL_TRANSITION_ANIMATION = "transition_animation";
+    private static final float SCRIM_ADJUSTMENT = 0.075f;
 
     public static final String ARG_ITEM_ID = "item_id";
 
@@ -149,12 +150,6 @@ public class ArticleDetailFragment extends Fragment implements
                             System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                             DateUtils.FORMAT_ABBREV_ALL),
                     mCursor.getString(ArticleLoader.Query.AUTHOR)));
-            /*
-            subtitle.setText(DateUtils.getRelativeTimeSpanString(mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
-                    System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                    DateUtils.FORMAT_ABBREV_ALL).toString()
-                    + "by " + mCursor.getString(ArticleLoader.Query.AUTHOR));
-                    */
 
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
             Glide.with(this)
@@ -255,20 +250,29 @@ public class ArticleDetailFragment extends Fragment implements
             if (bitmap == null) {
                 return false;
             }
-            final int twentyFourDip = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    24, ArticleDetailFragment.this.getResources().getDisplayMetrics());
             Palette.from(bitmap)
-                    .maximumColorCount(3)
                     .clearFilters()/* by default palette ignore certain hues
                         (e.g. pure black/white) but we don't want this. */
                     .generate(new Palette.PaletteAsyncListener() {
                         @Override
                         public void onGenerated(Palette palette) {
-                            Palette.Swatch mostPopular = ColorUtils.getMostPopulousSwatch(palette);
-                            if (mostPopular == null) {
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                                 return;
                             }
-                            collapsingToolbar.setContentScrimColor(mostPopular.getRgb());
+                            final int lightness = ColorUtils.isDark(palette);
+                            final boolean isDark = lightness == ColorUtils.IS_DARK;
+                            
+                            int statusBarColor = getActivity().getWindow().getStatusBarColor();
+                            final Palette.Swatch mostPopular = ColorUtils.getMostPopulousSwatch(palette);
+                            if (mostPopular != null &&
+                                    (isDark || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
+                                collapsingToolbar.setContentScrimColor(mostPopular.getRgb());
+                                // TODO: make status bar light on android 6.0
+                                statusBarColor = ColorUtils.scrimify(mostPopular.getRgb(), isDark, SCRIM_ADJUSTMENT);
+                            }
+                            if (statusBarColor != getActivity().getWindow().getStatusBarColor()) {
+                                collapsingToolbar.setStatusBarScrimColor(statusBarColor);
+                            }
                         }
                     });
             return false;
