@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
+        android:layout_marginRight="@dimen/list_toolbar_side_margin"
+        android:elevation="8dp"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/logo" />
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <android.support.v4.widget.Space
+        android:id="@+id/layout_center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
+
+    <fragment
+        android:id="@+id/fragment_list"
+        android:name="com.example.xyzreader.ui.ArticleListFragment"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/toolbar"
+        tools:layout="@android:layout/list_content"
+        android:choiceMode="singleChoice"/>
+
+    <!-- This is used to give the card the appropriate margin
+         list_item_extra_padding +
+         abc_list_item_padding_horizontal_material -->
+    <android.support.v7.widget.Space
+        android:id="@+id/cardviewAligner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignLeft="@id/layout_center"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_alignStart="@id/layout_center"
+        android:elevation="@dimen/appbar_elevation"
+        android:layout_marginRight="@dimen/list_item_extra_padding"
+        android:layout_marginEnd="@dimen/list_item_extra_padding"
+        />
+    <View
+        android:id="@+id/article_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignLeft="@id/cardviewAligner"
+        android:layout_alignRight="@id/cardviewAligner"
+        android:layout_alignTop="@id/cardviewAligner"
+        android:layout_alignBottom="@id/cardviewAligner"
+        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+        android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
+        />
+
+
+</RelativeLayout>
