@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.SharedElementCallback;
@@ -25,11 +23,13 @@ import android.view.ViewTreeObserver;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.util.List;
 import java.util.Map;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by alexander on 15.02.16.
@@ -37,8 +37,8 @@ import java.util.Map;
 public class ArticleListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private View rootView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private RecyclerView mRecyclerView;
+    @Bind(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
+    @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
     private ArticleListAdapter adapter;
 
     private Bundle reenterState;
@@ -98,18 +98,14 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_list_articles, container, false);
+        ButterKnife.bind(this, rootView);
         setSharedElementCallback();
-
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 refresh();
             }
         });
-
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         adapter = new ArticleListAdapter(getContext(), new ArticleListAdapter.ArticlesAdapterClickHandler() {
             @Override
             public void onClick(ArticleListAdapter.ViewHolder viewHolder) {
@@ -128,6 +124,12 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
     private void refresh() {
@@ -167,7 +169,6 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mSwipeRefreshLayout.setRefreshing(false);
-        mRecyclerView.setAdapter(null);
+        adapter.swapCursor(null);
     }
 }

@@ -20,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -286,7 +285,6 @@ public class ArticleDetailFragment extends Fragment implements
         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
             return false;
         }
-
 
     };
 }
