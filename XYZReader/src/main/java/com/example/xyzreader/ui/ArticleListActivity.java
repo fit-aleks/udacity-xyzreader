@@ -3,10 +3,14 @@ package com.example.xyzreader.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.example.xyzreader.R;
+import com.example.xyzreader.data.ItemsContract;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -14,7 +18,7 @@ import com.example.xyzreader.R;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends AppCompatActivity  {
+public class ArticleListActivity extends AppCompatActivity implements ArticleListFragment.Callback {
     static final String EXTRA_CURRENT_POSITION = "current_position";
     static final String EXTRA_STARTING_POSITION = "starting_position";
 
@@ -67,6 +71,21 @@ public class ArticleListActivity extends AppCompatActivity  {
 
     }
 
-
-
+    @Override
+    public void onItemSelected(long itemId, ArticleListAdapter.ViewHolder viewHolder) {
+        if (twoPane) {
+            ArticleDetailFragment detailFragment = ArticleDetailFragment.newInstance(itemId, false);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.article_detail_container, detailFragment, DETAIL_FRAGMENT_TAG)
+                    .commit();
+        } else {
+            final Intent intent = new Intent(Intent.ACTION_VIEW,
+                    ItemsContract.Items.buildItemUri(itemId));
+            ActivityOptionsCompat activityOptions =
+                    ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+                            viewHolder.thumbnailView,
+                            ViewCompat.getTransitionName(viewHolder.thumbnailView));
+            ActivityCompat.startActivity(this, intent, activityOptions.toBundle());
+        }
+    }
 }

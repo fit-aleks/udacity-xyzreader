@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -41,6 +42,10 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
     private ArticleListAdapter adapter;
 
     private Bundle reenterState;
+
+    public interface Callback {
+        void onItemSelected(long itemId, ArticleListAdapter.ViewHolder viewHolder);
+    }
 
     private void setSharedElementCallback() {
         ActivityCompat.setExitSharedElementCallback(getActivity(), new SharedElementCallback() {
@@ -108,13 +113,7 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
         adapter = new ArticleListAdapter(getContext(), new ArticleListAdapter.ArticlesAdapterClickHandler() {
             @Override
             public void onClick(ArticleListAdapter.ViewHolder viewHolder) {
-                final Intent intent = new Intent(Intent.ACTION_VIEW,
-                        ItemsContract.Items.buildItemUri(adapter.getItemId(viewHolder.getAdapterPosition())));
-                ActivityOptionsCompat activityOptions =
-                        ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
-                                viewHolder.thumbnailView,
-                                ViewCompat.getTransitionName(viewHolder.thumbnailView));
-                ActivityCompat.startActivity(getActivity(), intent, activityOptions.toBundle());
+                ((Callback)getActivity()).onItemSelected(adapter.getItemId(viewHolder.getAdapterPosition()), viewHolder);
             }
         });
         mRecyclerView.setAdapter(adapter);
