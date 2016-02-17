@@ -199,13 +199,17 @@ public class ArticleDetailFragment extends Fragment implements
 
         bindViews();
 
-        AppCompatActivity activity = (AppCompatActivity)getActivity();
-        if (toolbar != null) {
-            activity.setSupportActionBar(toolbar);
-            if (activity.getSupportActionBar() != null) {
-                activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (transitionAnimation) {
+            AppCompatActivity activity = (AppCompatActivity)getActivity();
+
+            if (toolbar != null) {
+                activity.setSupportActionBar(toolbar);
+                if (activity.getSupportActionBar() != null) {
+                    activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                }
             }
         }
+
     }
 
     @Override

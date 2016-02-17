@@ -10,4 +10,10 @@
 
     <dimen name="detail_backdrop_height">256dp</dimen>
 
+    <!-- Help to make us tablet beautiful -->
+    <dimen name="list_item_extra_padding">0dp</dimen>
+    <dimen name="detail_view_padding">@dimen/abc_list_item_padding_horizontal_material</dimen>
+    <dimen name="article_detail_padding_wide">16dp</dimen>
+    <dimen name="detail_container_bottom_margin">@dimen/detail_view_padding</dimen>
+
 </resources>

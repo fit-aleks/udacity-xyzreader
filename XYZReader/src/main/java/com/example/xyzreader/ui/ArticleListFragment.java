@@ -1,11 +1,9 @@
 package com.example.xyzreader.ui;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -23,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -118,7 +115,6 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
                                 viewHolder.thumbnailView,
                                 ViewCompat.getTransitionName(viewHolder.thumbnailView));
                 ActivityCompat.startActivity(getActivity(), intent, activityOptions.toBundle());
-//                startActivity();
             }
         });
         mRecyclerView.setAdapter(adapter);
@@ -148,14 +144,12 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
             mRecyclerView.scrollToPosition(currentPosition);
         }
         ActivityCompat.postponeEnterTransition(getActivity());
-//        supportPostponeEnterTransition();
         mRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 mRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
                 mRecyclerView.requestLayout();
                 ActivityCompat.startPostponedEnterTransition(getActivity());
-//                supportStartPostponedEnterTransition();
                 return true;
             }
         });
