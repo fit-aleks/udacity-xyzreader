@@ -22,37 +22,12 @@ public class ArticleListActivity extends AppCompatActivity implements ArticleLis
     static final String EXTRA_CURRENT_POSITION = "current_position";
     static final String EXTRA_STARTING_POSITION = "starting_position";
 
-    private static final String DETAIL_FRAGMENT_TAG = "detail_tag";
-
-    private boolean twoPane = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
-        Uri contentUri = getIntent() != null ? getIntent().getData() : null;
-
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        if (findViewById(R.id.article_detail_container) != null) {
-            twoPane = true;
-            if (savedInstanceState == null) {
-                ArticleDetailFragment detailFragment = new ArticleDetailFragment();
-                if (contentUri != null) {
-                    Bundle args = new Bundle();
-                    args.putBoolean(ArticleDetailFragment.DETAIL_TRANSITION_ANIMATION, false);
-                    detailFragment.setArguments(args);
-                }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.article_detail_container, detailFragment, DETAIL_FRAGMENT_TAG)
-                        .commit();
-            }
-        } else {
-            twoPane = false;
-        }
     }
 
     @Override
@@ -63,29 +38,19 @@ public class ArticleListActivity extends AppCompatActivity implements ArticleLis
     @Override
     public void onActivityReenter(int resultCode, Intent data) {
         super.onActivityReenter(resultCode, data);
-        if (!twoPane) {
-            ArticleListFragment fragment = (ArticleListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_list);
-            fragment.onActivityReenter(data);
-        }
-
+        ArticleListFragment fragment = (ArticleListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_list);
+        fragment.onActivityReenter(data);
     }
 
     @Override
     public void onItemSelected(long itemId, ArticleListAdapter.ViewHolder viewHolder) {
-        if (twoPane) {
-            ArticleDetailFragment detailFragment = ArticleDetailFragment.newInstance(itemId, false);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.article_detail_container, detailFragment, DETAIL_FRAGMENT_TAG)
-                    .commit();
-        } else {
-            final Intent intent = new Intent(Intent.ACTION_VIEW,
-                    ItemsContract.Items.buildItemUri(itemId));
-            ActivityOptionsCompat activityOptions =
-                    ActivityOptionsCompat.makeSceneTransitionAnimation(this,
-                            viewHolder.thumbnailView,
-                            ViewCompat.getTransitionName(viewHolder.thumbnailView));
-            ActivityCompat.startActivity(this, intent, activityOptions.toBundle());
-        }
+        final Intent intent = new Intent(Intent.ACTION_VIEW,
+                ItemsContract.Items.buildItemUri(itemId));
+        ActivityOptionsCompat activityOptions =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+                        viewHolder.thumbnailView,
+                        ViewCompat.getTransitionName(viewHolder.thumbnailView));
+        ActivityCompat.startActivity(this, intent, activityOptions.toBundle());
     }
 }

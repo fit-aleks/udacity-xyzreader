@@ -51,7 +51,7 @@
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="28dp"
+            android:layout_marginBottom="16dp"
             android:paddingLeft="@dimen/list_side_margin"
             android:paddingRight="@dimen/list_side_margin"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
