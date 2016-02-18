@@ -3,8 +3,12 @@ package com.example.xyzreader.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +18,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -21,9 +27,11 @@ import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +42,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.ui.widget.DrawInsetsFrameLayout;
 import com.example.xyzreader.utils.ColorUtils;
 import com.example.xyzreader.utils.GlideUtils;
 
@@ -61,11 +70,12 @@ public class ArticleDetailFragment extends Fragment implements
     private View mRootView;
     @Bind(R.id.photo) ImageView mPhotoView;
     @Bind(R.id.article_body) TextView bodyView;
-    @Bind(R.id.toolbar_subtitle) TextView subtitle;
+    @Bind(R.id.article_subtitle) TextView subtitle;
     @Bind(R.id.toolbar) Toolbar toolbar;
-    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;
+    private TextView titleView;
+    private CollapsingToolbarLayout collapsingToolbar;
+//    private DrawInsetsFrameLayout drawInsetsFrameLayout;
 
-    private boolean mIsCard = false;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -93,7 +103,6 @@ public class ArticleDetailFragment extends Fragment implements
             transitionAnimation = getArguments().getBoolean(DETAIL_TRANSITION_ANIMATION, false);
         }
 
-        mIsCard = getResources().getBoolean(R.bool.detail_is_card);
     }
 
     @Override
@@ -112,11 +121,11 @@ public class ArticleDetailFragment extends Fragment implements
             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         ButterKnife.bind(this, mRootView);
+        titleView = (TextView) mRootView.findViewById(R.id.article_title);
+        collapsingToolbar = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
         Timber.tag(ArticleDetailFragment.class.getSimpleName());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPhotoView.setTransitionName(getString(R.string.article_image_transition_name) + mItemId);
-        }
+        ViewCompat.setTransitionName(mPhotoView, getString(R.string.article_image_transition_name) + mItemId);
         bodyView.setMovementMethod(new LinkMovementMethod());
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
@@ -141,7 +150,12 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+            if (collapsingToolbar != null) {
+                collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+            } else {
+                titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            }
+
 
             subtitle.setText(getString(R.string.details_subtitle,
                     DateUtils.getRelativeTimeSpanString(
@@ -198,17 +212,15 @@ public class ArticleDetailFragment extends Fragment implements
 
         bindViews();
 
-        if (transitionAnimation) {
-            AppCompatActivity activity = (AppCompatActivity)getActivity();
-
-            if (toolbar != null) {
-                activity.setSupportActionBar(toolbar);
-                if (activity.getSupportActionBar() != null) {
-                    activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                }
+        final AppCompatActivity activity = (AppCompatActivity)getActivity();
+        if (toolbar != null) {
+            activity.setSupportActionBar(toolbar);
+            final ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(false);
             }
         }
-
     }
 
     @Override
@@ -243,10 +255,10 @@ public class ArticleDetailFragment extends Fragment implements
         return view.getLocalVisibleRect(containerBounds);
     }
 
-    private RequestListener photoLoadListener = new RequestListener<String, GlideDrawable>() {
+    private RequestListener<String, GlideDrawable> photoLoadListener = new RequestListener<String, GlideDrawable>() {
 
         @Override
-        public boolean onResourceReady(GlideDrawable resource, String model,
+        public boolean onResourceReady(final GlideDrawable resource, String model,
                                        Target<GlideDrawable> target,
                                        boolean isFromMemoryCache, boolean isFirstResource) {
             final Bitmap bitmap = GlideUtils.getBitmap(resource);
@@ -262,20 +274,32 @@ public class ArticleDetailFragment extends Fragment implements
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                                 return;
                             }
-                            final int lightness = ColorUtils.isDark(palette);
-                            final boolean isDark = lightness == ColorUtils.IS_DARK;
-                            
-                            int statusBarColor = getActivity().getWindow().getStatusBarColor();
                             final Palette.Swatch mostPopular = ColorUtils.getMostPopulousSwatch(palette);
-                            if (mostPopular != null &&
-                                    (isDark || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
-                                collapsingToolbar.setContentScrimColor(mostPopular.getRgb());
-                                // TODO: make status bar light on android 6.0
-                                statusBarColor = ColorUtils.scrimify(mostPopular.getRgb(), isDark, SCRIM_ADJUSTMENT);
+                            if (collapsingToolbar != null) {
+                                // phone version
+                                final int lightness = ColorUtils.isDark(palette);
+                                final boolean isDark = lightness == ColorUtils.IS_DARK;
+
+                                int statusBarColor = getActivity().getWindow().getStatusBarColor();
+
+                                if (mostPopular != null &&
+                                        (isDark || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
+                                    collapsingToolbar.setContentScrimColor(mostPopular.getRgb());
+                                    // TODO: make status bar light on android 6.0
+                                    statusBarColor = ColorUtils.scrimify(mostPopular.getRgb(), isDark, SCRIM_ADJUSTMENT);
+                                }
+                                if (statusBarColor != getActivity().getWindow().getStatusBarColor()) {
+                                    collapsingToolbar.setStatusBarScrimColor(statusBarColor);
+                                }
+                            } else {
+                                if (mostPopular != null) {
+                                    final PorterDuffColorFilter colorFilter = new PorterDuffColorFilter(mostPopular.getTitleTextColor(), PorterDuff.Mode.MULTIPLY);
+                                    colorizeBackButton(colorFilter);
+                                    getActivity().getWindow().setStatusBarColor(mostPopular.getRgb());
+                                }
+
                             }
-                            if (statusBarColor != getActivity().getWindow().getStatusBarColor()) {
-                                collapsingToolbar.setStatusBarScrimColor(statusBarColor);
-                            }
+
                         }
                     });
             return false;
@@ -287,4 +311,21 @@ public class ArticleDetailFragment extends Fragment implements
         }
 
     };
+
+//    private void updateStatusBar() {
+//        if (collapsingToolbar != null) {
+//            return;
+//        }
+//        drawInsetsFrameLayout.setInsetBackground(new ColorDrawable(0));
+//    }
+
+    private void colorizeBackButton(final PorterDuffColorFilter colorFilter) {
+        for (int i =0; i< toolbar.getChildCount(); ++i) {
+            final View view = toolbar.getChildAt(i);
+            if (view instanceof ImageButton) {
+                ((ImageButton) view).getDrawable().setColorFilter(colorFilter);
+                break;
+            }
+        }
+    }
 }
