@@ -127,7 +127,6 @@ public class ArticleDetailFragment extends Fragment implements
 
         ViewCompat.setTransitionName(mPhotoView, getString(R.string.article_image_transition_name) + mItemId);
         bodyView.setMovementMethod(new LinkMovementMethod());
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         return mRootView;
     }
