@@ -15,7 +15,7 @@ Udacity nanodegree design project. Various classical approches for material desi
 
 ## License
 
-    Copyright 2015 Alexander Kuliokvskiy
+    Copyright 2016 Alexander Kuliokvskiy
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
