@@ -12,6 +12,9 @@ android {
         minSdkVersion 16
         targetSdkVersion 23
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 ext {
